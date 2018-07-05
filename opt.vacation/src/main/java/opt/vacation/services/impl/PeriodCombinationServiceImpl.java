@@ -43,20 +43,7 @@ public class PeriodCombinationServiceImpl implements PeriodCombinationService {
 		
 		if (plainList.isEmpty()) {
 			plainList = this.generatePeriodCombinations(year, days, parts);
-			/*
-			List<PeriodCombinationVariant> newList = this.generatePeriodCombinations(year, days, parts);
-			if (logger.isInfoEnabled()) { logger.info(String.format("generated %s", newList.size())); }
-			int packetSize = 1000;
-			int packets = (newList.size() / packetSize) + ( (newList.size() % packetSize == 0) ? 0 : 1 );
-			for (int i = 0; i < packets; i++) {
-				int from = i*packetSize;
-				int to = from + ((i+1)<packets?packetSize:newList.size()%packetSize);
-				plainList.addAll(periodCombiRepo.save(newList.subList(from, to)));
-				if (logger.isInfoEnabled()) { logger.info(String.format("saved %s...%s", from, to)); }
-			}
-			newList.clear();
-			*/
-			plainList = periodCombiRepo.save(plainList.subList(0, 10000));
+			//plainList = periodCombiRepo.save(plainList);
 			if (logger.isInfoEnabled()) { logger.info("saved"); }
 		}
 		if (logger.isInfoEnabled()) { logger.info("mapping"); }
@@ -79,19 +66,14 @@ public class PeriodCombinationServiceImpl implements PeriodCombinationService {
 		List<LengthCombinationVariant> lengthCombinationList = this.getLengthCombinations(days, parts);
 		if (logger.isInfoEnabled()) { logger.info(String.format("lengthCombinationList %s %s", days, parts)); }
 		
-		Set<PeriodCombinationVariant> resultSet = new LinkedHashSet<>();
+		List<PeriodCombinationVariant> result = new LinkedList<>();
 		for (LengthCombinationVariant template : lengthCombinationList) {
-			Set<PeriodCombinationVariant> subSet = this.getPeriodCombinations(year, template, periodMap);
-			resultSet.addAll(subSet);
+			result.addAll(
+					periodCombiRepo.save(
+							this.getPeriodCombinations(year, template, periodMap)));
 		}
 
-		int i = 1;
-		List<PeriodCombinationVariant> resultList = new LinkedList<>(resultSet); 
-		for (PeriodCombinationVariant item : resultList) {
-			item.setVariantId(i++);
-		}
-		
-		return resultList;
+		return result;
 	}
 
 	private Map<Integer, List<Period>> getPeriodMap(int year, int days) {
@@ -133,6 +115,11 @@ public class PeriodCombinationServiceImpl implements PeriodCombinationService {
 			}
 		}
 
+		int i = 1;
+		for (PeriodCombinationVariant variant : state) {
+			variant.setVariantId(i++);
+		}
+		
 		return state;
 	}
 

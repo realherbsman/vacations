@@ -7,6 +7,11 @@ import com.vaadin.ui.Window;
 
 public class ProgressPlaceholder extends Window {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8155364840518490273L;
+
 	public ProgressPlaceholder() {
 		super();
 		this.setModal(true);

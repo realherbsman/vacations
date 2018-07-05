@@ -1,7 +1,5 @@
 package opt.vacation.ui.components;
 
-import java.util.Arrays;
-
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +14,11 @@ import opt.vacation.jpa.entities.LengthCombinationVariant;
 @SpringComponent
 @UIScope
 public class LengthCombinationsTabPanel extends Grid<LengthCombinationVariant> {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5115177938664420541L;
 
 	private static final String CAPTION = "length combo";
 	

@@ -8,7 +8,6 @@ import com.vaadin.spring.annotation.SpringComponent;
 import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.Grid;
 
-import opt.vacation.beans.DataBean;
 import opt.vacation.beans.DataBinderBean;
 import opt.vacation.jpa.entities.DayMarker;
 
@@ -16,6 +15,10 @@ import opt.vacation.jpa.entities.DayMarker;
 @UIScope
 public class DaysTabPanel extends Grid<DayMarker> {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4121538092112039673L;
 	private static final String CAPTION = "days";
 	private static final String DATE_COLUMN_CAPTION = "Date";
 	private static final String DAY_OF_WEEK_COLUMN_CAPTION = "Day of week";
