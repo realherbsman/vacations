@@ -1,6 +1,5 @@
 package opt.vacation.services.impl;
 
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -40,7 +39,7 @@ public class PeriodCombinationServiceImpl implements PeriodCombinationService {
 	public Map<Double, List<PeriodCombinationVariant>> getPeriodCombinations(int year, int days, int parts) {
 		Map<Double, List<PeriodCombinationVariant>> result = new LinkedHashMap<>();
 		List<PeriodCombinationVariant> plainList = periodCombiRepo
-				.findAllByYearMarkerAndLengthCombination_Sum(year, days);
+				.findAllByYearMarkerAndLcSum(year, days);
 		
 		if (plainList.isEmpty()) {
 			plainList = this.generatePeriodCombinations(year, days, parts);
@@ -57,6 +56,7 @@ public class PeriodCombinationServiceImpl implements PeriodCombinationService {
 			}
 			newList.clear();
 			*/
+			plainList = periodCombiRepo.save(plainList.subList(0, 1));
 			if (logger.isInfoEnabled()) { logger.info("saved"); }
 		}
 		if (logger.isInfoEnabled()) { logger.info("mapping"); }
@@ -79,13 +79,19 @@ public class PeriodCombinationServiceImpl implements PeriodCombinationService {
 		List<LengthCombinationVariant> lengthCombinationList = this.getLengthCombinations(days, parts);
 		if (logger.isInfoEnabled()) { logger.info(String.format("lengthCombinationList %s %s", days, parts)); }
 		
-		Set<PeriodCombinationVariant> result = new LinkedHashSet<>();
+		Set<PeriodCombinationVariant> resultSet = new LinkedHashSet<>();
 		for (LengthCombinationVariant template : lengthCombinationList) {
 			Set<PeriodCombinationVariant> subSet = this.getPeriodCombinations(year, template, periodMap);
-			result.addAll(subSet);
+			resultSet.addAll(subSet);
 		}
 
-		return new LinkedList<>(result);
+		int i = 1;
+		List<PeriodCombinationVariant> resultList = new LinkedList<>(resultSet); 
+		for (PeriodCombinationVariant item : resultList) {
+			item.setVariantId(i++);
+		}
+		
+		return resultList;
 	}
 
 	private Map<Integer, List<Period>> getPeriodMap(int year, int days) {

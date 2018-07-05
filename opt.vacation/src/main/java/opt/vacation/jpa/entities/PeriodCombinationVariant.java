@@ -3,15 +3,15 @@ package opt.vacation.jpa.entities;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.Index;
+import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
@@ -19,21 +19,28 @@ import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 
 import opt.vacation.jpa.entities.converters.DoubleToBigDecimalAttributeConverter;
-import opt.vacation.jpa.entities.converters.UUIDToStringAttributeConverter;
+import opt.vacation.jpa.entities.ids.PeriodCombinationVariantId;
 
 @Entity(name="PeriodCombinationVariantEntity")
-@Table(
-		name="PERIOD_COMBINATION_VARIANTS",
-		indexes={@Index(name="PC_YEAR_IDX", columnList="YEAR_MARKER", unique=false)})
-public class PeriodCombinationVariant implements Comparable<PeriodCombinationVariant> {
+@Table(name="PC_VARIANTS")
+@IdClass(value=PeriodCombinationVariantId.class)
+public class PeriodCombinationVariant {
 
 	@Id
-	@Column(name="VARIANT_ID", nullable=false, length=36)
-	@Convert(converter=UUIDToStringAttributeConverter.class)
-	private UUID variantId;
-	
 	@Column(name="YEAR_MARKER")
 	private Integer yearMarker;
+	@Id
+	@Column(name="LC_SUM", insertable=false, updatable=false)
+	private Integer lcSum;
+	@Id
+	@Column(name="LC_PARTS", insertable=false, updatable=false)
+	private Integer lcParts;
+	@Id
+	@Column(name="LC_VARIANT_ID", insertable=false, updatable=false)
+	private Integer lcVariantId;
+	@Id
+	@Column(name="VARIANT_ID")
+	private Integer variantId;
 	
 	@Column(name="WORK_PRICE", nullable=false, precision=18, scale=15)
 	@Convert(converter=DoubleToBigDecimalAttributeConverter.class)
@@ -46,10 +53,7 @@ public class PeriodCombinationVariant implements Comparable<PeriodCombinationVar
 	private Double ratingDelta;
 	
 	@OneToOne(fetch=FetchType.EAGER)
-	@JoinTable(
-			name="PERIOD_COMBINATION_VARIANT_LC",
-			joinColumns={@JoinColumn(name="VARIANT_ID")},
-			inverseJoinColumns={
+	@JoinColumns(value={
 					@JoinColumn(name="LC_SUM", referencedColumnName="LC_SUM"),
 					@JoinColumn(name="LC_PARTS", referencedColumnName="LC_PARTS"),
 					@JoinColumn(name="LC_VARIANT_ID", referencedColumnName="LC_VARIANT_ID")})
@@ -57,15 +61,20 @@ public class PeriodCombinationVariant implements Comparable<PeriodCombinationVar
 	
 	@ManyToMany(fetch=FetchType.EAGER)
 	@JoinTable(
-			name="PERIOD_COMBINATION_VARIANT_ELEMENTS",	
-			joinColumns={@JoinColumn(name="VARIANT_ID")},
+			name="PC_VARIANT_ELEMENTS",	
+			joinColumns={
+					@JoinColumn(name="YEAR_MARKER_VARIANT", referencedColumnName="YEAR_MARKER"),
+					@JoinColumn(name="LC_SUM", referencedColumnName="LC_SUM"),
+					@JoinColumn(name="LC_PARTS", referencedColumnName="LC_PARTS"),
+					@JoinColumn(name="LC_VARIANT_ID", referencedColumnName="LC_VARIANT_ID"),
+					@JoinColumn(name="VARIANT_ID", referencedColumnName="VARIANT_ID")},
 			inverseJoinColumns={
-					@JoinColumn(name="YEAR_MARKER", referencedColumnName="YEAR_MARKER"),
+					@JoinColumn(name="YEAR_MARKER_PERIOD", referencedColumnName="YEAR_MARKER"),
 					@JoinColumn(name="FIRST_DATE_YEAR", referencedColumnName="FIRST_DATE_YEAR"),
 					@JoinColumn(name="FIRST_DATE_MONTH", referencedColumnName="FIRST_DATE_MONTH"),
 					@JoinColumn(name="FIRST_DATE_DAY", referencedColumnName="FIRST_DATE_DAY"),
 					@JoinColumn(name="OFFICIAL_LENGTH", referencedColumnName="OFFICIAL_LENGTH")})
-	@OrderColumn(name="PERIOD_ID")
+	//@OrderColumn(name="PERIOD_ID")
 	private List<Period> periods;
 
 	public PeriodCombinationVariant() {
@@ -74,8 +83,11 @@ public class PeriodCombinationVariant implements Comparable<PeriodCombinationVar
 	
 	public PeriodCombinationVariant(Period period, int year, LengthCombinationVariant lengthCombination) {
 		this();
-		this.variantId = UUID.randomUUID();
 		this.yearMarker = year;
+		this.variantId = 0;
+		this.lcSum = lengthCombination.getSum();
+		this.lcParts = lengthCombination.getParts();
+		this.lcVariantId = lengthCombination.getVariantId();
 		this.lengthCombination = lengthCombination;
 		this.periods = new LinkedList<>();
 		this.periods.add(period);
@@ -86,8 +98,11 @@ public class PeriodCombinationVariant implements Comparable<PeriodCombinationVar
 	
 	public PeriodCombinationVariant(Period period, PeriodCombinationVariant prototype) {
 		this();
-		this.variantId = UUID.randomUUID();
 		this.yearMarker = prototype.yearMarker;
+		this.variantId = 0;
+		this.lcSum = prototype.getLcSum();
+		this.lcParts = prototype.getLcParts();
+		this.lcVariantId = prototype.getLcVariantId();
 		this.lengthCombination = prototype.lengthCombination;
 		this.periods = new LinkedList<>(prototype.periods);
 		this.periods.add(period);
@@ -97,14 +112,6 @@ public class PeriodCombinationVariant implements Comparable<PeriodCombinationVar
 		this.ratingDelta = this.vacationPrice - this.workPrice;
 	}
 	
-	public UUID getVariantId() {
-		return variantId;
-	}
-
-	public void setVariantId(UUID variantId) {
-		this.variantId = variantId;
-	}
-
 	public Integer getYearMarker() {
 		return yearMarker;
 	}
@@ -154,21 +161,6 @@ public class PeriodCombinationVariant implements Comparable<PeriodCombinationVar
 	}
 
 	@Override
-	public int compareTo(PeriodCombinationVariant other) {
-		int result = this.getYearMarker().compareTo(other.getYearMarker());
-		if (result == 0) {
-			result = this.lengthCombination.getSum().compareTo(other.getLengthCombination().getSum());
-			if (result == 0) {
-				result = this.getRatingDelta().compareTo(other.getRatingDelta());
-				if (result == 0) {
-					return this.getVariantId().compareTo(other.getVariantId());
-				}
-			}
-		} 
-		return result;
-	}
-
-	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -209,6 +201,38 @@ public class PeriodCombinationVariant implements Comparable<PeriodCombinationVar
 		} else if (!yearMarker.equals(other.yearMarker))
 			return false;
 		return true;
+	}
+
+	public Integer getLcSum() {
+		return lcSum;
+	}
+
+	public void setLcSum(Integer lcSum) {
+		this.lcSum = lcSum;
+	}
+
+	public Integer getLcParts() {
+		return lcParts;
+	}
+
+	public void setLcParts(Integer lcParts) {
+		this.lcParts = lcParts;
+	}
+
+	public Integer getLcVariantId() {
+		return lcVariantId;
+	}
+
+	public void setLcVariantId(Integer lcVariantId) {
+		this.lcVariantId = lcVariantId;
+	}
+
+	public Integer getVariantId() {
+		return variantId;
+	}
+
+	public void setVariantId(Integer variantId) {
+		this.variantId = variantId;
 	}
 
 }

@@ -18,7 +18,7 @@ import javax.persistence.Table;
 import opt.vacation.jpa.entities.ids.LengthCombinationVariantId;
 
 @Entity(name="LengthCombinationVariantEntity")
-@Table(name="LENGTH_COMBINATION_VARIANTS")
+@Table(name="LC_VARIANTS")
 @IdClass(value=LengthCombinationVariantId.class)
 public class LengthCombinationVariant {
 
@@ -35,10 +35,10 @@ public class LengthCombinationVariant {
 	private Integer max;
 	@ElementCollection(fetch=FetchType.EAGER)
 	@CollectionTable(
-			name="LENGTH_COMBINATION_VARIANT_ELEMENTS",
+			name="LC_VARIANT_ELEMENTS",
 			indexes={
 					@Index(
-							name="LENGTH_COMBINATION_VARIANT_ELEMENTS_IDX", 
+							name="LC_VARIANT_ELEMENTS_IDX", 
 							columnList="LC_SUM, LC_PARTS, LC_VARIANT_ID", 
 							unique=false)},
 			joinColumns={

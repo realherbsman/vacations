@@ -1,12 +1,12 @@
 package opt.vacation.jpa.entities.repositories;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import opt.vacation.jpa.entities.PeriodCombinationVariant;
+import opt.vacation.jpa.entities.ids.PeriodCombinationVariantId;
 
-public interface PeriodCombinationVariantRepository extends JpaRepository<PeriodCombinationVariant, UUID> {
-	public List<PeriodCombinationVariant> findAllByYearMarkerAndLengthCombination_Sum(Integer yearMarker, Integer sum);
+public interface PeriodCombinationVariantRepository extends JpaRepository<PeriodCombinationVariant, PeriodCombinationVariantId> {
+	public List<PeriodCombinationVariant> findAllByYearMarkerAndLcSum(Integer yearMarker, Integer lcSum);
 }
