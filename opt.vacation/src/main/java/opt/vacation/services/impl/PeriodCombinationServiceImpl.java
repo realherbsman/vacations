@@ -56,7 +56,7 @@ public class PeriodCombinationServiceImpl implements PeriodCombinationService {
 			}
 			newList.clear();
 			*/
-			plainList = periodCombiRepo.save(plainList.subList(0, 1));
+			plainList = periodCombiRepo.save(plainList.subList(0, 10000));
 			if (logger.isInfoEnabled()) { logger.info("saved"); }
 		}
 		if (logger.isInfoEnabled()) { logger.info("mapping"); }

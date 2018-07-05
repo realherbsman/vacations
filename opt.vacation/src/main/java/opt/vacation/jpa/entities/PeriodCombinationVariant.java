@@ -30,13 +30,13 @@ public class PeriodCombinationVariant {
 	@Column(name="YEAR_MARKER")
 	private Integer yearMarker;
 	@Id
-	@Column(name="LC_SUM", insertable=false, updatable=false)
+	@Column(name="LC_SUM")
 	private Integer lcSum;
 	@Id
-	@Column(name="LC_PARTS", insertable=false, updatable=false)
+	@Column(name="LC_PARTS")
 	private Integer lcParts;
 	@Id
-	@Column(name="LC_VARIANT_ID", insertable=false, updatable=false)
+	@Column(name="LC_VARIANT_ID")
 	private Integer lcVariantId;
 	@Id
 	@Column(name="VARIANT_ID")
@@ -54,27 +54,27 @@ public class PeriodCombinationVariant {
 	
 	@OneToOne(fetch=FetchType.EAGER)
 	@JoinColumns(value={
-					@JoinColumn(name="LC_SUM", referencedColumnName="LC_SUM"),
-					@JoinColumn(name="LC_PARTS", referencedColumnName="LC_PARTS"),
-					@JoinColumn(name="LC_VARIANT_ID", referencedColumnName="LC_VARIANT_ID")})
+					@JoinColumn(name="LC_SUM", referencedColumnName="LC_SUM", insertable=false, updatable=false),
+					@JoinColumn(name="LC_PARTS", referencedColumnName="LC_PARTS", insertable=false, updatable=false),
+					@JoinColumn(name="LC_VARIANT_ID", referencedColumnName="LC_VARIANT_ID", insertable=false, updatable=false)})
 	private LengthCombinationVariant lengthCombination;
 	
 	@ManyToMany(fetch=FetchType.EAGER)
 	@JoinTable(
 			name="PC_VARIANT_ELEMENTS",	
 			joinColumns={
-					@JoinColumn(name="YEAR_MARKER_VARIANT", referencedColumnName="YEAR_MARKER"),
-					@JoinColumn(name="LC_SUM", referencedColumnName="LC_SUM"),
-					@JoinColumn(name="LC_PARTS", referencedColumnName="LC_PARTS"),
-					@JoinColumn(name="LC_VARIANT_ID", referencedColumnName="LC_VARIANT_ID"),
-					@JoinColumn(name="VARIANT_ID", referencedColumnName="VARIANT_ID")},
+					@JoinColumn(name="YEAR_MARKER_VARIANT", referencedColumnName="YEAR_MARKER", insertable=false, updatable=false),
+					@JoinColumn(name="LC_SUM", referencedColumnName="LC_SUM", insertable=false, updatable=false),
+					@JoinColumn(name="LC_PARTS", referencedColumnName="LC_PARTS", insertable=false, updatable=false),
+					@JoinColumn(name="LC_VARIANT_ID", referencedColumnName="LC_VARIANT_ID", insertable=false, updatable=false),
+					@JoinColumn(name="VARIANT_ID", referencedColumnName="VARIANT_ID", insertable=false, updatable=false)},
 			inverseJoinColumns={
-					@JoinColumn(name="YEAR_MARKER_PERIOD", referencedColumnName="YEAR_MARKER"),
-					@JoinColumn(name="FIRST_DATE_YEAR", referencedColumnName="FIRST_DATE_YEAR"),
-					@JoinColumn(name="FIRST_DATE_MONTH", referencedColumnName="FIRST_DATE_MONTH"),
-					@JoinColumn(name="FIRST_DATE_DAY", referencedColumnName="FIRST_DATE_DAY"),
-					@JoinColumn(name="OFFICIAL_LENGTH", referencedColumnName="OFFICIAL_LENGTH")})
-	//@OrderColumn(name="PERIOD_ID")
+					@JoinColumn(name="YEAR_MARKER_PERIOD", referencedColumnName="YEAR_MARKER", insertable=false, updatable=false),
+					@JoinColumn(name="FIRST_DATE_YEAR", referencedColumnName="FIRST_DATE_YEAR", insertable=false, updatable=false),
+					@JoinColumn(name="FIRST_DATE_MONTH", referencedColumnName="FIRST_DATE_MONTH", insertable=false, updatable=false),
+					@JoinColumn(name="FIRST_DATE_DAY", referencedColumnName="FIRST_DATE_DAY", insertable=false, updatable=false),
+					@JoinColumn(name="OFFICIAL_LENGTH", referencedColumnName="OFFICIAL_LENGTH", insertable=false, updatable=false)})
+	@OrderColumn(name="PERIOD_ID")
 	private List<Period> periods;
 
 	public PeriodCombinationVariant() {
